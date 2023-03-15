@@ -12,11 +12,13 @@
     "expo": "~48.0.6",
     "expo-splash-screen": "~0.18.1",
     "expo-status-bar": "~1.4.4",
+    "firebase": "^8.8.1",
     "react": "18.2.0",
     "react-native": "0.71.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "react-native-dotenv": "^3.4.8"
   },
   "private": true
 }
