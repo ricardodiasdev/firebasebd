@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, TextInput, Button } from "react-native";
 import firebase from "./src/firebaseConnection";
 
@@ -14,6 +14,8 @@ export default function App() {
   // const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [user, setUser] = useState("");
+  const refInput = useRef(null)
 
   // useEffect(() => {
   //   async function dados() {
@@ -67,7 +69,7 @@ export default function App() {
   // dados();
   // }, []);
 
-  async function cadastrar() {
+  async function logar() {
     // if (nome !== "" && idade !== "" && cargo !== "") {
     //   let usuarios = await firebase.database().ref("usuarios");
     //   let chave = usuarios.push().key;
@@ -82,27 +84,49 @@ export default function App() {
     //   setCargo("");
     // }
 
+    //   await firebase
+    //     .auth()
+    //     .createUserWithEmailAndPassword(email, password)
+    //     .then((value) => {
+    //       alert("Usuário cadastrado: " + value.user.email);
+    //     })
+    //     .catch((error) => {
+    //       if (error.code === "auth/weak-password") {
+    //         alert("Sua senha deve ter pelo menos 6 caracteres");
+    //         return;
+    //       }
+    //       if (error.code === "auth/invalid-email") {
+    //         alert("Email inválido");
+    //         return;
+    //       } else {
+    //         alert("Algo deu errado...");
+    //         return;
+    //       }
+    //     });
+    //   setEmail("");
+    //   setPassword("");
+    // }
+
     await firebase
       .auth()
-      .createUserWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email, password)
       .then((value) => {
-        alert("Usuário cadastrado: " + value.user.email);
+        alert("Bem-vindo: " + value.user.email);
+        setUser(value.user.email);
       })
-      .catch((error) => {
-        if (error.code === "auth/weak-password") {
-          alert("Sua senha deve ter pelo menos 6 caracteres");
-          return;
-        }
-        if (error.code === "auth/invalid-email") {
-          alert("Email inválido");
-          return;
-        } else {
-          alert("Algo deu errado...");
-          return;
-        }
+      .catch(() => {
+        alert("Algo deu errado...");
+        return;
       });
     setEmail("");
     setPassword("");
+    refInput.current.focus();
+  }
+
+  async function deslogar() {
+    await firebase.auth().signOut();
+    alert("Deslogado com sucesso ");
+    setUser("");
   }
 
   return (
@@ -113,14 +137,15 @@ export default function App() {
         underlineColorAndroid="transparent"
         onChangeText={(texto) => setEmail(texto)}
         value={email}
-        textContentType='emailAddress'
+        textContentType="emailAddress"
+        ref={refInput}
       />
       <Text style={styles.text}>Senha</Text>
       <TextInput
         style={styles.input}
         underlineColorAndroid="transparent"
         onChangeText={(texto) => setPassword(texto)}
-        textContentType='newPassword'
+        textContentType="newPassword"
         value={password}
       />
       {/*<Text style={styles.text}>Cargo</Text>
@@ -130,7 +155,9 @@ export default function App() {
         onChangeText={(texto) => setCargo(texto)}
         value={cargo}
       /> */}
-      <Button title="Cadastrar" onPress={cadastrar} />
+      {!user && <Button title="Logar" onPress={logar} /> }
+      {user && <Button title="Deslogar" onPress={deslogar} />}
+      <Text style={styles.text}>{user}</Text>
       {/* {loading ? (
         <ActivityIndicator style={styles.indicator} color="#121212" size={35} />
       ) : (
