@@ -7,7 +7,7 @@ import firebase from "./src/firebaseConnection";
 console.disableYellowBox = true;
 
 export default function App() {
-  // const [nome, setNome] = useState();
+  const [nome, setNome] = useState();
   // const [idade, setIdade] = useState();
   // const [cargo, setCargo] = useState();
   // const [usuarios, setUsuarios] = useState([]);
@@ -15,7 +15,7 @@ export default function App() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [user, setUser] = useState("");
-  const refInput = useRef(null)
+  const refInput = useRef(null);
 
   // useEffect(() => {
   //   async function dados() {
@@ -69,68 +69,97 @@ export default function App() {
   // dados();
   // }, []);
 
-  async function logar() {
-    // if (nome !== "" && idade !== "" && cargo !== "") {
-    //   let usuarios = await firebase.database().ref("usuarios");
-    //   let chave = usuarios.push().key;
-    //   usuarios.child(chave).set({
-    //     nome: nome,
-    //     idade: idade,
-    //     cargo: cargo,
-    //   });
-    //   alert("Cadastro realizado com sucesso");
-    //   setNome("");
-    //   setIdade("");
-    //   setCargo("");
-    // }
+  // async function logar() {
+  //   // if (nome !== "" && idade !== "" && cargo !== "") {
+  //   //   let usuarios = await firebase.database().ref("usuarios");
+  //   //   let chave = usuarios.push().key;
+  //   //   usuarios.child(chave).set({
+  //   //     nome: nome,
+  //   //     idade: idade,
+  //   //     cargo: cargo,
+  //   //   });
+  //   //   alert("Cadastro realizado com sucesso");
+  //   //   setNome("");
+  //   //   setIdade("");
+  //   //   setCargo("");
+  //   // }
 
-    //   await firebase
-    //     .auth()
-    //     .createUserWithEmailAndPassword(email, password)
-    //     .then((value) => {
-    //       alert("Usuário cadastrado: " + value.user.email);
-    //     })
-    //     .catch((error) => {
-    //       if (error.code === "auth/weak-password") {
-    //         alert("Sua senha deve ter pelo menos 6 caracteres");
-    //         return;
-    //       }
-    //       if (error.code === "auth/invalid-email") {
-    //         alert("Email inválido");
-    //         return;
-    //       } else {
-    //         alert("Algo deu errado...");
-    //         return;
-    //       }
-    //     });
-    //   setEmail("");
-    //   setPassword("");
-    // }
+  //   //   await firebase
+  //   //     .auth()
+  //   //     .createUserWithEmailAndPassword(email, password)
+  //   //     .then((value) => {
+  //   //       alert("Usuário cadastrado: " + value.user.email);
+  //   //     })
+  //   //     .catch((error) => {
+  //   //       if (error.code === "auth/weak-password") {
+  //   //         alert("Sua senha deve ter pelo menos 6 caracteres");
+  //   //         return;
+  //   //       }
+  //   //       if (error.code === "auth/invalid-email") {
+  //   //         alert("Email inválido");
+  //   //         return;
+  //   //       } else {
+  //   //         alert("Algo deu errado...");
+  //   //         return;
+  //   //       }
+  //   //     });
+  //   //   setEmail("");
+  //   //   setPassword("");
+  //   // }
 
+  //   await firebase
+  //     .auth()
+  //     .signInWithEmailAndPassword(email, password)
+  //     .then((value) => {
+  //       alert("Bem-vindo: " + value.user.email);
+  //       setUser(value.user.email);
+  //     })
+  //     .catch(() => {
+  //       alert("Algo deu errado...");
+  //       return;
+  //     });
+  //   setEmail("");
+  //   setPassword("");
+  //   refInput.current.focus();
+  // }
+
+  // async function deslogar() {
+  //   await firebase.auth().signOut();
+  //   alert("Deslogado com sucesso ");
+  //   setUser("");
+  // }
+
+  async function cadastrar() {
     await firebase
       .auth()
-      .signInWithEmailAndPassword(email, password)
+      .createUserWithEmailAndPassword(email, password)
       .then((value) => {
-        alert("Bem-vindo: " + value.user.email);
-        setUser(value.user.email);
+        // alert(value.user.uid);
+        firebase.database().ref("usuarios").child(value.user.uid).set({
+          nome: nome,
+        });
+        alert("Usuário cadastrado...");
+        setNome("");
+        setEmail("");
+        setPassword("");
+        refInput.current.focus();
       })
-      .catch(() => {
-        alert("Algo deu errado...");
-        return;
+      .catch((error) => {
+        alert("Algo deu errado!");
       });
-    setEmail("");
-    setPassword("");
-    refInput.current.focus();
-  }
-
-  async function deslogar() {
-    await firebase.auth().signOut();
-    alert("Deslogado com sucesso ");
-    setUser("");
   }
 
   return (
     <View style={styles.container}>
+      <Text style={styles.text}>Nome</Text>
+      <TextInput
+        style={styles.input}
+        underlineColorAndroid="transparent"
+        onChangeText={(texto) => setNome(texto)}
+        value={nome}
+        textContentType="name"
+        ref={refInput}
+      />
       <Text style={styles.text}>Email</Text>
       <TextInput
         style={styles.input}
@@ -138,7 +167,6 @@ export default function App() {
         onChangeText={(texto) => setEmail(texto)}
         value={email}
         textContentType="emailAddress"
-        ref={refInput}
       />
       <Text style={styles.text}>Senha</Text>
       <TextInput
@@ -155,9 +183,10 @@ export default function App() {
         onChangeText={(texto) => setCargo(texto)}
         value={cargo}
       /> */}
-      {!user && <Button title="Logar" onPress={logar} /> }
+      <Button title="Cadastrar" onPress={cadastrar} />
+      {/* {!user && <Button title="Logar" onPress={logar} /> }
       {user && <Button title="Deslogar" onPress={deslogar} />}
-      <Text style={styles.text}>{user}</Text>
+      <Text style={styles.text}>{user}</Text> */}
       {/* {loading ? (
         <ActivityIndicator style={styles.indicator} color="#121212" size={35} />
       ) : (
