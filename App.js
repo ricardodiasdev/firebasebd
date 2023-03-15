@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Button } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Button,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import firebase from "./src/firebaseConnection";
+
+import Listagem from "./src/Listagem";
 
 console.disableYellowBox = true;
 
@@ -8,6 +18,8 @@ export default function App() {
   const [nome, setNome] = useState();
   const [idade, setIdade] = useState();
   const [cargo, setCargo] = useState();
+  const [usuarios, setUsuarios] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function dados() {
@@ -39,6 +51,24 @@ export default function App() {
       //   .ref("usuarios")
       //   .child(3)
       //   .update({ cargo: "Universitária" });
+      //Buscando todos os registros
+      await firebase
+        .database()
+        .ref("usuarios")
+        .on("value", (snapshot) => {
+          setUsuarios([]);
+          snapshot.forEach((childItem) => {
+            let data = {
+              key: childItem.key,
+              nome: childItem.val().nome,
+              idade: childItem.val().idade,
+              cargo: childItem.val().cargo,
+            };
+            // forma de atualizar o array com a inversão da ordem da lista (reverse())
+            setLoading(false);
+            setUsuarios((oldArray) => [...oldArray, data].reverse());
+          });
+        });
     }
     dados();
   }, []);
@@ -85,6 +115,15 @@ export default function App() {
         value={cargo}
       />
       <Button title="Novo cadastro" onPress={cadastrar} />
+      {loading ? (
+        <ActivityIndicator style={styles.indicator} color="#121212" size={35} />
+      ) : (
+        <FlatList
+          keyExtractor={(item) => item.key}
+          data={usuarios}
+          renderItem={({ item }) => <Listagem data={item} />}
+        />
+      )}
     </View>
   );
 }
@@ -106,4 +145,7 @@ const styles = StyleSheet.create({
     height: 45,
     fontSize: 20,
   },
+  indicator: {
+    marginTop: 20
+  }
 });
